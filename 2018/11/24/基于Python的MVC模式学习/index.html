@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="MVC模式的学习，本学习例子重点关注如何将Model与View分离，参考Web-MVC结构（上图，本例将Browser和View统称为View），Controller主要作用于连接View与Model，就算没有View/Controll的代码，Model也应该是完整的，虽然操作起来会相对麻烦一些，但是只要我们知道Model的API，依然能正常运行这个程序。 虽然本程序的Model部分只是retu">
+<meta name="keywords" content="王三三, 0x21">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Python的MVC模式学习">
+<meta property="og:url" content="http://yoursite.com/2018/11/24/基于Python的MVC模式学习/index.html">
+<meta property="og:site_name" content="王三三">
+<meta property="og:description" content="MVC模式的学习，本学习例子重点关注如何将Model与View分离，参考Web-MVC结构（上图，本例将Browser和View统称为View），Controller主要作用于连接View与Model，就算没有View/Controll的代码，Model也应该是完整的，虽然操作起来会相对麻烦一些，但是只要我们知道Model的API，依然能正常运行这个程序。 虽然本程序的Model部分只是retu">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/2018/11/24/基于Python的MVC模式学习/WebMVC.GIF">
+<meta property="og:updated_time" content="2018-11-23T19:52:27.371Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于Python的MVC模式学习">
+<meta name="twitter:description" content="MVC模式的学习，本学习例子重点关注如何将Model与View分离，参考Web-MVC结构（上图，本例将Browser和View统称为View），Controller主要作用于连接View与Model，就算没有View/Controll的代码，Model也应该是完整的，虽然操作起来会相对麻烦一些，但是只要我们知道Model的API，依然能正常运行这个程序。 虽然本程序的Model部分只是retu">
+<meta name="twitter:image" content="http://yoursite.com/2018/11/24/基于Python的MVC模式学习/WebMVC.GIF">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/default/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/default/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/default/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>基于Python的MVC模式学习</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2018/08/30/OpenSSL库的使用之C语言实现HTTPS的POST提交/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&text=基于Python的MVC模式学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&is_video=false&description=基于Python的MVC模式学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=基于Python的MVC模式学习&body=Check out this article: http://yoursite.com/2018/11/24/基于Python的MVC模式学习/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&name=基于Python的MVC模式学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#代码下载："><span class="toc-number">1.</span> <span class="toc-text">代码下载：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#目录结构-20181124"><span class="toc-number">2.</span> <span class="toc-text">目录结构  (20181124)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接："><span class="toc-number">3.</span> <span class="toc-text">参考链接：</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        基于Python的MVC模式学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">王三三</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-11-23T19:42:44.000Z" itemprop="datePublished">2018-11-24</time>
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><img src="/2018/11/24/基于Python的MVC模式学习/WebMVC.GIF" alt="WebMVC.GIF"></p>
+<p>MVC模式的学习，本学习例子重点关注如何将Model与View分离，参考Web-MVC结构（上图，本例将Browser和View统称为View），Controller主要作用于连接View与Model，就算没有View/Controll的代码，Model也应该是完整的，虽然操作起来会相对麻烦一些，但是只要我们知道Model的API，依然能正常运行这个程序。</p>
+<p>虽然本程序的Model部分只是return了一个字符串进行测试，但我认为已经足以表达我所关注的重点：<strong>如何在保证View与Model分离的情况下将View的input传给Model，并从Model得到output输出到View。</strong></p>
+<hr>
+<ul>
+<li>View Class<ul>
+<li>GUI设计导入(存放于View/Window/)，可以使用wxFormBuilde快速生成图形化界面</li>
+<li>GUI各控件所用到的参数设置和获取值接口的封装</li>
+<li>GUI的初始化接口</li>
+<li>GUI控件事件绑定以及回调函数的设置</li>
+<li>考虑到控制台(View/Console/)输出也归类到View，控制台初始化/输出的接口封装，暂时没添加控制台input交互</li>
+<li>View/Window/目录除了会存放已经设计好的GUI之外，还可以添加其他酷炫的动态效果设计</li>
+<li>View/Console/目录功能和View/Window目录功能一样，如果觉得简单的print()太单调，可以自行封装酷炫的输出方式，在View/View.py中调用</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>Model Class</p>
+<ul>
+<li>各项业务功能的导入(如：Model/Test/)，可以完全独立编写该业务所需要完成的功能，封装API给Model/Model.py进行各项功能间的复杂逻辑处理</li>
+<li>进行复杂逻辑的编写，封装对应API，不依赖于子目录外的其它文件</li>
+<li>输出接口与回调函数的设置接口，用以提供给Controll直接使用</li>
+</ul>
+</li>
+<li><p>Controller Class</p>
+<ul>
+<li>并没有太严格的与Application进行区分，首先进行常规的入口参数检查，并且做好用法帮助提示输出</li>
+<li>实例化View与Model</li>
+<li>编写输入与输出的回调函数 - do_work() 和 finish()</li>
+<li>将Model输入的回调函数绑定到触发任务的View控件对应事件</li>
+<li>将View输出的回调函数绑定到Model的输出</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="代码下载："><a href="#代码下载：" class="headerlink" title="代码下载："></a>代码下载：</h2><p><a href="https://github.com/w0x0021/MVC_for_python" target="_blank" rel="noopener">MVC for python</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/w0x0021/MVC_for_python.git</span><br></pre></td></tr></table></figure>
+<h2 id="目录结构-20181124"><a href="#目录结构-20181124" class="headerlink" title="目录结构  (20181124)"></a>目录结构  (20181124)</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">├─Model</span><br><span class="line">│  ├─Test</span><br><span class="line">│  │  └─test.py</span><br><span class="line">│  └─Model.py</span><br><span class="line">└─View</span><br><span class="line">│  ├─Console</span><br><span class="line">│  ├─Window</span><br><span class="line">│  │  └─WindowMain.py</span><br><span class="line">│  └─View.py</span><br><span class="line">├─main.py</span><br><span class="line">└─Controller.py</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h2><p><a href="https://blog.csdn.net/sinat_37212928/article/details/78038312?locationNum=2&amp;fps=1" target="_blank" rel="noopener">到底什么是MVC？</a></p>
+<p><a href="https://blog.csdn.net/u010798296/article/details/54949613" target="_blank" rel="noopener">wxpython 与 mvc</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#代码下载："><span class="toc-number">1.</span> <span class="toc-text">代码下载：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#目录结构-20181124"><span class="toc-number">2.</span> <span class="toc-text">目录结构  (20181124)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接："><span class="toc-number">3.</span> <span class="toc-text">参考链接：</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&text=基于Python的MVC模式学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&is_video=false&description=基于Python的MVC模式学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=基于Python的MVC模式学习&body=Check out this article: http://yoursite.com/2018/11/24/基于Python的MVC模式学习/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&title=基于Python的MVC模式学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/11/24/基于Python的MVC模式学习/&name=基于Python的MVC模式学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 w0x0021
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+

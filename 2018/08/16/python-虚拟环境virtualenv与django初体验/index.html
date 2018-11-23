@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="0x01django是一个python打造的web应用框架，借python的快速开发对django进行学习。 我这里使用的 树莓派搭载kali_4.9.59 + python2.7 进行测试 0x02 准备工作在项目开发中，每个项目常会使用不一样的开发环境，为了将每个项目不一样的开发环境隔离开来，可在同一台开发机上使用virtualenv给每个项目创建单独的开发环境。 A、建立开发虚拟环境 1、安">
+<meta name="keywords" content="王三三, 0x21">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 虚拟环境virtualenv与django初体验">
+<meta property="og:url" content="http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/index.html">
+<meta property="og:site_name" content="王三三">
+<meta property="og:description" content="0x01django是一个python打造的web应用框架，借python的快速开发对django进行学习。 我这里使用的 树莓派搭载kali_4.9.59 + python2.7 进行测试 0x02 准备工作在项目开发中，每个项目常会使用不一样的开发环境，为了将每个项目不一样的开发环境隔离开来，可在同一台开发机上使用virtualenv给每个项目创建单独的开发环境。 A、建立开发虚拟环境 1、安">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2018/08/3645826008.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2018/08/3808505954.png">
+<meta property="og:image" content="https://www.wangsansan.com/usr/uploads/2018/08/1059004038.png">
+<meta property="og:updated_time" content="2018-11-23T19:37:15.390Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python 虚拟环境virtualenv与django初体验">
+<meta name="twitter:description" content="0x01django是一个python打造的web应用框架，借python的快速开发对django进行学习。 我这里使用的 树莓派搭载kali_4.9.59 + python2.7 进行测试 0x02 准备工作在项目开发中，每个项目常会使用不一样的开发环境，为了将每个项目不一样的开发环境隔离开来，可在同一台开发机上使用virtualenv给每个项目创建单独的开发环境。 A、建立开发虚拟环境 1、安">
+<meta name="twitter:image" content="https://www.wangsansan.com/usr/uploads/2018/08/3645826008.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/default/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/default/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/default/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>python 虚拟环境virtualenv与django初体验</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </span>
+    <br>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/08/30/OpenSSL库的使用之C语言实现HTTPS的POST提交/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/11/30/Typecho-install-php存在的反序列化漏洞/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&text=python 虚拟环境virtualenv与django初体验"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&is_video=false&description=python 虚拟环境virtualenv与django初体验"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python 虚拟环境virtualenv与django初体验&body=Check out this article: http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&name=python 虚拟环境virtualenv与django初体验&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-准备工作"><span class="toc-number">2.</span> <span class="toc-text">0x02 准备工作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#A、建立开发虚拟环境"><span class="toc-number">2.1.</span> <span class="toc-text">A、建立开发虚拟环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B、django"><span class="toc-number">2.2.</span> <span class="toc-text">B、django</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-初体验"><span class="toc-number">3.</span> <span class="toc-text">0x03 初体验</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-结果"><span class="toc-number">4.</span> <span class="toc-text">0x04 结果</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope="" itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        python 虚拟环境virtualenv与django初体验
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <span itemprop="name">王三三</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2018-08-15T19:34:59.000Z" itemprop="datePublished">2018-08-16</time>
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><p>django是一个python打造的web应用框架，借python的快速开发对django进行学习。</p>
+<p>我这里使用的 树莓派搭载kali_4.9.59 + python2.7 进行测试</p>
+<h1 id="0x02-准备工作"><a href="#0x02-准备工作" class="headerlink" title="0x02 准备工作"></a>0x02 准备工作</h1><p>在项目开发中，每个项目常会使用不一样的开发环境，为了将每个项目不一样的开发环境隔离开来，可在同一台开发机上使用virtualenv给每个项目创建单独的开发环境。</p>
+<h2 id="A、建立开发虚拟环境"><a href="#A、建立开发虚拟环境" class="headerlink" title="A、建立开发虚拟环境"></a>A、建立开发虚拟环境</h2><blockquote>
+<p>1、安装virtualenv</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># pip install virtualenv</span></span><br></pre></td></tr></table></figure>
+<p>安装完成之后会提供一个命令行工具 <strong>virtualenv</strong></p>
+<blockquote>
+<p>2、创建工作目录 并使用virtualenv初始化</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># mkdir workspace</span></span><br><span class="line">~<span class="comment"># virtualenv django_study</span></span><br></pre></td></tr></table></figure>
+<p>创建完成之后会生成对应项目名称的文件夹，我们进入文件夹的bin目录开启virtualenv环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">~<span class="comment"># cd django_study/bin</span></span><br><span class="line">~/django_study/bin$ <span class="built_in">source</span> ./activete</span><br><span class="line">(django_study) ~/django_study/bin<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<p>可以看到前面多了一对括号包含了目录名，表示当前已经处于virtualenv虚拟环境下</p>
+<p>现在就可以开始进行项目的开发了，不用担心项目因为各种环境安装过多造成的污染</p>
+<h2 id="B、django"><a href="#B、django" class="headerlink" title="B、django"></a>B、django</h2><blockquote>
+<p>1、安装django</p>
+</blockquote>
+<p>首先安装django，安装完成之后会提供一个django-admin的命令行工具进行项目管理</p>
+<p>在virtualenv环境下进行安装的所有python环境安装包都会安装到当前的virtualenv环境，对系统自身的环境没有任何影响，可以通过查看以上的django_study目录。</p>
+<p>然后需要使用django-admin初始化一个项目目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(django_study) ~/<span class="comment"># pip install django</span></span><br><span class="line">(django_study) ~/<span class="comment"># django-admin startproject django_workspace</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>2、运行django</p>
+</blockquote>
+<p>初始化完成后，会生成一个项目文件夹，包含一个项目名的目录和manage.py的管理工具。</p>
+<p>django可以在运行过程中修改项目文件，它自身会实时刷新更改后的文件，所以免去了文件被更改后需要重新启动的繁琐工作。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(django_study) ~/<span class="comment"># cd django_workspace</span></span><br><span class="line">(django_study) ~/django_workspace/<span class="comment"># ./manage.py runserver 0.0.0.0:9999</span></span><br></pre></td></tr></table></figure>
+<p>此时我们的django框架已经运行起来了，端口号为9999，可以使用浏览器访问一下</p>
+<p><img src="https://www.wangsansan.com/usr/uploads/2018/08/3645826008.png" alt="1.png"></p>
+<blockquote>
+<p>2、创建应用</p>
+</blockquote>
+<p>运行起来之后，我们就可以开始建立我们自己的应用</p>
+<p>比如我建立一个hello的应用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(django_study) ~/django_workspace/<span class="comment"># django-admin start hello</span></span><br></pre></td></tr></table></figure>
+<p>建立完成之后会生成相应的app目录</p>
+<p>本次体验我们首先写一个简单的hello world</p>
+<p>主要改动的文件如下</p>
+<ul>
+<li>hello/views.py</li>
+<li>templates/index.html</li>
+<li>django_workspace/urls.py</li>
+<li>django_workspace/settings.py</li>
+</ul>
+<h1 id="0x03-初体验"><a href="#0x03-初体验" class="headerlink" title="0x03 初体验"></a>0x03 初体验</h1><p>我准备了一份index.html的hello文件，并实现访问hello时则响应我的hello请求，访问index则返回index.html静态页面两个简单的功能。</p>
+<p>1、访问 <a href="http://ip/hello" target="_blank" rel="noopener">http://ip/hello</a> , 返回 hello<br>2、访问 <a href="http://ip/index" target="_blank" rel="noopener">http://ip/index</a> , 返回一个静态页面</p>
+<blockquote>
+<p>1、准备index.html文件</p>
+</blockquote>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">title</span>&gt;</span>hello,world<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello <span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">p</span>&gt;</span>World<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在django目录下新建templates文件夹，将index.html放入文件夹内</p>
+<blockquote>
+<p>2、hello/views.py 的修改</p>
+</blockquote>
+<p>此文件是我们应用的视图文件，当我们从浏览器中访问我们的应用时，都由此文件进行控制</p>
+<p>比如别人访问我们的某个链接地址，我们希望获取GET或POST提交的参数，并且根据url执行对应操作，或返回某个静态页面，都在此文件中进行控制，以下内容为新增内容，非覆盖添加</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.http <span class="keyword">import</span> HttpResponse</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(request)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> HttpResponse(<span class="string">'hello'</span>)</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">index</span><span class="params">(request)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">"index.html"</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>3、django_workspace/urls.py 的修改</p>
+</blockquote>
+<p>此文件用于配置url链接，每一个url地址对应一个方法，在上述第2个步骤中实现该方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.conf.urls <span class="keyword">import</span> url</span><br><span class="line"><span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin</span><br><span class="line"><span class="keyword">from</span> hello <span class="keyword">import</span> views</span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    url(<span class="string">r'^admin/'</span>, admin.site.urls),</span><br><span class="line">    url(<span class="string">r'^hello'</span>, views.hello),</span><br><span class="line">    url(<span class="string">r'^index'</span>, views.index),</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>url指定为 hello 对应到 views.hello方法</p>
+<p>url指定为 index 对应到 views.index方法</p>
+<blockquote>
+<p>4、django_workspace/settings.py 的配置</p>
+</blockquote>
+<p>我主要修改了以下几个参数</p>
+<p><strong>1. 配置允许被访问的地址</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ALLOWED_HOSTS = [<span class="string">"*"</span>]</span><br></pre></td></tr></table></figure></p>
+<p><strong>2. 添加应用</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">INSTALLED_APPS = [</span><br><span class="line">    <span class="string">'hello'</span>,</span><br><span class="line">    <span class="string">'django.contrib.admin'</span>,</span><br><span class="line">    <span class="string">'django.contrib.auth'</span>,</span><br><span class="line">    <span class="string">'django.contrib.contenttypes'</span>,</span><br><span class="line">    <span class="string">'django.contrib.sessions'</span>,</span><br><span class="line">    <span class="string">'django.contrib.messages'</span>,</span><br><span class="line">    <span class="string">'django.contrib.staticfiles'</span>,</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<p><strong>3. 增加模版路径</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">TEMPLATES = [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">'BACKEND'</span>: <span class="string">'django.template.backends.django.DjangoTemplates'</span>,</span><br><span class="line">        <span class="string">'DIRS'</span>: [os.path.join(BASE_DIR, <span class="string">'templates'</span>).replace(<span class="string">'\\'</span>, <span class="string">'/'</span>),],</span><br><span class="line">        <span class="string">'APP_DIRS'</span>: <span class="keyword">True</span>,</span><br><span class="line">        <span class="string">'OPTIONS'</span>: &#123;</span><br><span class="line">            <span class="string">'context_processors'</span>: [</span><br><span class="line">                <span class="string">'django.template.context_processors.debug'</span>,</span><br><span class="line">                <span class="string">'django.template.context_processors.request'</span>,</span><br><span class="line">                <span class="string">'django.contrib.auth.context_processors.auth'</span>,</span><br><span class="line">                <span class="string">'django.contrib.messages.context_processors.messages'</span>,</span><br><span class="line">            ],</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<p>这里附上一份简单的配置说明</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">BASE_DIR 		    // 根目录</span><br><span class="line">DEBUG 			    // 调试开关，开发模式下为True</span><br><span class="line">INSTALLED_APPS 	    // APP路径，默认添加同名app名称即可</span><br><span class="line">DATABASES 		    // 数据库配置，默认SQLITE3，如果使用MYSQL需要另行配置，此处不做阐述</span><br><span class="line">ALLOWED_HOSTS 	    // 允许被访问的IP，此处可在括号内填星号，表示允许所有IP</span><br><span class="line">STATIC_URL 		    // 静态文件临时调用目录</span><br><span class="line">STATICFILES_DIRS 	// 静态文件目录</span><br><span class="line">MIDDLEWARE 		    // 中间件，自己写的中间件要填在系统自带中间件之后</span><br><span class="line">TEMPLATES 	    	// 模版</span><br></pre></td></tr></table></figure>
+<h1 id="0x04-结果"><a href="#0x04-结果" class="headerlink" title="0x04 结果"></a>0x04 结果</h1><blockquote>
+<p>1、hello</p>
+</blockquote>
+<p><img src="https://www.wangsansan.com/usr/uploads/2018/08/3808505954.png" alt="hello.png"></p>
+<blockquote>
+<p>2、index.html</p>
+</blockquote>
+<p><img src="https://www.wangsansan.com/usr/uploads/2018/08/1059004038.png" alt="index.png"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01"><span class="toc-number">1.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-准备工作"><span class="toc-number">2.</span> <span class="toc-text">0x02 准备工作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#A、建立开发虚拟环境"><span class="toc-number">2.1.</span> <span class="toc-text">A、建立开发虚拟环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B、django"><span class="toc-number">2.2.</span> <span class="toc-text">B、django</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-初体验"><span class="toc-number">3.</span> <span class="toc-text">0x03 初体验</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-结果"><span class="toc-number">4.</span> <span class="toc-text">0x04 结果</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&text=python 虚拟环境virtualenv与django初体验"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&is_video=false&description=python 虚拟环境virtualenv与django初体验"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python 虚拟环境virtualenv与django初体验&body=Check out this article: http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&title=python 虚拟环境virtualenv与django初体验"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://yoursite.com/2018/08/16/python-虚拟环境virtualenv与django初体验/&name=python 虚拟环境virtualenv与django初体验&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2018 w0x0021
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/projects_url">项目</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+</body>
+</html>
+<!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+<!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
